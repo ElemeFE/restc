@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>restc</title>
+  <link rel="stylesheet" href="https://github.elemecdn.com/highlightjs/cdn-release/9.8.0/build/styles/default.min.css">
+  <link rel="stylesheet" href="https://github.elemecdn.com/codemirror/CodeMirror/5.19.0/lib/codemirror.css"></script>
+  <link rel="stylesheet" href="https://github.elemecdn.com/codemirror/CodeMirror/5.19.0/theme/material.css"></script>
+  <script>
+    if (!window.fetch) document.write('<script src="https://github.elemecdn.com/uglifyjs!github/fetch/v1.0.0/fetch.js"><\/script>');
+  </script>
+  <script src="https://github.elemecdn.com/uglifyjs!YanagiEiichi/jinkela/1.2.14/jinkela.js"></script>
+  <script src="https://github.elemecdn.com/uglifyjs!YanagiEiichi/jinkela/1.2.14/plugins/from.js"></script>
+  <script src="https://github.elemecdn.com/uglifyjs!YanagiEiichi/jinkela/1.2.14/plugins/nesting.js"></script>
+  <script src="https://github.elemecdn.com/uglifyjs!YanagiEiichi/jinkela/1.2.14/directives/on.js"></script>
+  <script src="https://github.elemecdn.com/uglifyjs!YanagiEiichi/jinkela/1.2.14/directives/ref.js"></script>
+  <script src="https://github.elemecdn.com/uglifyjs!YanagiEiichi/jinkela/1.2.14/directives/jkl.js"></script>
+  <script src="https://github.elemecdn.com/highlightjs/cdn-release/9.8.0/build/highlight.min.js"></script>
+  <script src="https://github.elemecdn.com/uglifyjs!codemirror/CodeMirror/5.19.0/lib/codemirror.js"></script>
+  <script src="https://github.elemecdn.com/uglifyjs!codemirror/CodeMirror/5.19.0/mode/javascript/javascript.js"></script>
+  <script src="https://github.elemecdn.com/uglifyjs!codemirror/CodeMirror/5.19.0/addon/display/autorefresh.js"></script>
+  <script>
+    class Configuration {
+      static get watchList() {
+        let value = {};
+        Object.defineProperty(this, 'watchList', { value, configurable: true });
+        return value;
+      }
+      static set(key, value) {
+        let oldValue = this.get(key);
+        localStorage.setItem(key, JSON.stringify(value));
+        if (this.watchList.hasOwnProperty(key)) {
+          this.watchList[key].forEach(watcher => watcher.call(this, value, oldValue));
+        }
+      }
+      static get(key, defaultValue = null) {
+        try {
+          let value = JSON.parse(localStorage.getItem(key));
+          if (value === null) value = defaultValue;
+          return value;
+        } catch (error) {
+          return defaultValue;
+        }
+      }
+      static watch(key, callback, callImmediately = true) {
+        (this.watchList.hasOwnProperty(key) ? this.watchList[key] : this.watchList[key] = []).push(callback);
+        if (callImmediately) this.set(key, this.get(key));
+      }
+      static unwatch(key, callback) {
+        if (this.watchList.hasOwnProperty(key)) {
+          this.watchList[key] = this.watchList[key].filter(watcher => watcher !== callback);
+        }
+      }
+    }
+
+    class QueryString {
+      static encode(s) {
+        return encodeURIComponent(s).replace(/%20/g, '+');
+      }
+      static decode(s) {
+        return decodeURIComponent(s.replace(/\+/g, '%20'));
+      }
+    }
+
+    function loader({ element }, $promise) {
+      element.classList.add('loading');
+      let restore = () => { element.classList.remove('loading'); };
+      return $promise.then(data => {
+        restore();
+        return data;
+      }, e => {
+        restore();
+        throw e;
+      });
+    }
+
+    class Logo extends Jinkela {
+      get template() {
+        return `
+          <a href="https://github.com/ElemeFE/restc" target="_blank"></a>
+        `;
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            margin: 0 -8px;
+            padding: 8px;
+            width: 67px;
+            height: 25px;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIYAAAAyCAYAAACZIqPyAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDY3IDc5LjE1Nzc0NywgMjAxNS8wMy8zMC0yMzo0MDo0MiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDpjNDUyZmZhYi1mYzc2LTQ3NzktYWIxNi0yMWIwYzAwNmQ3MzkiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6REU5NDNBN0VBMDIxMTFFNkJFRjI4RDAyMkVFQTk1MEIiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6REU5NDNBN0RBMDIxMTFFNkJFRjI4RDAyMkVFQTk1MEIiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpjNDUyZmZhYi1mYzc2LTQ3NzktYWIxNi0yMWIwYzAwNmQ3MzkiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6YzQ1MmZmYWItZmM3Ni00Nzc5LWFiMTYtMjFiMGMwMDZkNzM5Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+3gUV5gAABPZJREFUeNrsXItxozAQlT1pQCmBlIBLwCWQEkgJUAIuwZRglwAlHCVYJYQSOJiTLoqy+gbEx3ozO54xIMTu29WuJDj0fY8ApIPkg8TAsQMK2BrqQRLhv26QYpAKuuBFQopb0OXugQe50t+LePAIXJAHnT0VckoOJTGwZPgI2HfkSHTEgEhR0LziEPKLzeLM2e8MHI9MhhIxQbkEvTqH6CuVNaEZ5K47SUeMNtjXmgxj4j6WeuUg2Ur7qbXrS7DlZHhAIXmrOAZ7BgRiBARiBARiBGyQGFeaofOScsdjLotnopt5xUL2z8sDydd4VEhpFdED8knbzIHksubOkyWemaSfOkT0ng/g+huSzFhOhnERjZOk/45aOG4r1/4nSnos62HcLNvrFe1gTf+iQf70dhjPj+n1de+Gh4PeZMgd7JLr2liiXI2pyCZ+iMR7bpaRIKXXjTN9naTN2qHEjCR9nArQSuhT5BgqUiDAiJgqK574XqXjvEMjIdoUKB1I0eyFGLqFOjKRAfnIkQBenzq2d5/RYaD8alyrekXf16sK2o8WzTQ7vcaqhAjKyhTnvXPKeld4cgaQRYZKMAIzREHb5z2UX5wiFu29GfRxvNcJ/VurEp/rQp/3vNdytaJK4o1LFMpCglHugicXknMTIGrJhrEP4P8LldeZhhEMPGthEA06X8TAHklRUCMQwbidgWdXEg+tJMoShy/sW9EaJEA0rNaUfEaeFGWynB8rDKhKuFqFV+qeK1qoIog95TGm9/9BjMygdJwCrUtnDYlBFEY3IXyN/C+XRw76mSqP40v7H8SQ1fQNWg6qcO8SyToLj7x6nk+IPTmkquS+8c97pAp4AEqoFiZGpCBMr5DMgBjEgBwJ1c0Nzb/PAnsmBjSUxxwXwKqkpUnhB9oXOiD5NTFAir7WYHwRw0cSzErexrRcjam34J0Rg0jmQUy9s0Tr2785RVRObOYx0p0pgUi8cIyOJ4sqIEP7ee+mpCItV8eJojdAOSlawWIOgLGfB0t50wwxbBbRpBqYY7m7M8yvphy6csBJGBf+RwxZWE0W9nKbpHSKTP1Ec6tOo9RsZmLMPYxD77Ge+XzjCFQiPplroyxffWLT9I3jHMsUTjC3Q0a68vWo6eCSCahqBjPxQEpVYmqjF+zwrL5fEyW65LND60Gr6E/q4f6dImpgi6EvcSCG76qwM61K1pRoyqoD3Tg/KvemqTBKR28nlhEjF5LXKxDKdcmhV2yVGAh9vRcaAwYfCVFrKquEKp+9TpgA5VxqQYxOUxr23L1ig+iUG5J/nsiywGZg23ZdN9yq7oV/2WZssMFWhU/g+kSxqTkRzs3o/yPSOTYDb+G9El35aFKaQVHlN1VLKyl3bYYXDFx/l+RT/GsKPY2U6Zz51haIQZB8p7cp4onKwZEQheJY84s+MScgDsTHz0gMpvQTsl/tZXMSFeCdtga4GxDU1LCyrQOd5XO2EzgNiC19BoFFDrbIl0qSOLacrNohxvZwsrYiyfDSUkI0yGy6nFAissQxAvqmW/Jns5BsCCwlz9iiGbdFHITPObI9CLxnnVHA3pALhCtERwovNQdsOscICMQICMQI2Cwxwsdg94n4t8RYfDEnYHKwUt+KGFCtLn5pJmB74KfUa+C40X6M8NHX50NjMpSET0Q/F6DPLIDEGKdr30Pk2D3YJx/ARcG/AgwApoTnnabyZYoAAAAASUVORK5CYII=');
+            background-position: 50% 50%;
+            background-repeat: no-repeat;
+            background-size: 67px 25px;
+          }
+        `;
+      }
+    }
+
+    class SideBarToggleButton extends Jinkela {
+      get template() {
+        return `
+          <a href="javascript:" on-click="{click}">Toggle SideBar</a>
+        `;
+      }
+      init() {
+        Configuration.watch('settings.sidebar.collapse', value => {
+          if (value) {
+            this.element.classList.remove('active');
+          } else {
+            this.element.classList.add('active');
+          }
+        });
+      }
+      click() {
+        Configuration.set('settings.sidebar.collapse', !Configuration.get('settings.sidebar.collapse'));
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            margin-left: auto;
+            padding: 4px;
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pjxzdmcgdmlld0JveD0iMCAwIDEwMjQgMTAyNCIgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiPjxwYXRoIGQ9Ik0yMzIuMzY5MjMxIDI4Mi44MTMwNDZoNTU5LjI2MTUzOGEzMS41MDc2OTIgMzEuNTA3NjkyIDAgMCAwIDAtNjMuMDE1Mzg0aC01NTkuMjYxNTM4YTMxLjUwNzY5MiAzMS41MDc2OTIgMCAwIDAgMCA2My4wMTUzODR6TTc5MS42MzA3NjkgNDgwLjQ5MjMwOGgtNTU5LjI2MTUzOGEzMS41MDc2OTIgMzEuNTA3NjkyIDAgMCAwIDAgNjMuMDE1Mzg0aDU1OS4yNjE1MzhhMzEuNTA3NjkyIDMxLjUwNzY5MiAwIDAgMCAwLTYzLjAxNTM4NHpNNzkxLjYzMDc2OSA3NDEuMTg2OTU0aC01NTkuMjYxNTM4YTMxLjUwNzY5MiAzMS41MDc2OTIgMCAwIDAgMCA2My4wMTUzODRoNTU5LjI2MTUzOGEzMS41MDc2OTIgMzEuNTA3NjkyIDAgMCAwIDAtNjMuMDE1Mzg0eiIgZmlsbD0iI2ZmZiI+PC9wYXRoPjwvc3ZnPg==');
+            background-position: 50% 50%;
+            background-repeat: no-repeat;
+            border-radius: 4px;
+            text-indent: 10000px;
+            overflow: hidden;
+            &:hover {
+              background-color: #3f4555;
+            }
+            &:active, &.active {
+              background-color: #2d2f3b;
+            }
+          }
+        `;
+      }
+    }
+
+    class Header extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <jkl-logo></jkl-logo>
+            <jkl-side-bar-toggle-button></jkl-side-bar-toggle-button>
+          </div>
+        `;
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            display: flex;
+            align-items: center;
+            padding: 10px 40px;
+            background: #4c5264;
+          }
+        `;
+      }
+    }
+
+    class ResultViewFragment extends Jinkela {
+      get title() { return 'TITLE'; }
+      get template() {
+        return `
+          <div>
+            <h3>{title}</h3>
+          </div>
+        `;
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            h3 {
+              margin: 0 -40px;
+              padding: 20px 40px;
+              font-size: 17px;
+              font-weight: 600;
+              color: #5d6576;
+            }
+          }
+        `;
+      }
+    }
+
+    class HighlightBlock extends Jinkela {
+      get template() {
+        return `<pre><code class="http" ref="body"></code></pre>`;
+      }
+      update(code) {
+        this.body.textContent = code;
+        hljs.highlightBlock(this.body);
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            margin: 0 -40px;
+            background-color: #f8f8fa;
+            border-top: 1px solid #d8dbe2;
+            border-bottom: 1px solid #d8dbe2;
+            font-size: 12px;
+            line-height: 1.5;
+            & > code {
+              margin: 0 8px;
+              padding: 20px 32px;
+              background: transparent;
+            }
+          }
+        `;
+      }
+    }
+
+    class RequestView extends ResultViewFragment {
+      get title() { return 'Request'; }
+      init() {
+        this.block = new HighlightBlock().to(this);
+      }
+      update({ method, path, queryString, body, headers }) {
+        let uri = path;
+        if (queryString) uri += '?' + queryString;
+        headers = Object.keys(headers)
+          .reduce((result, key) => [ ...result, ...headers[key].map(value => ({ key, value })) ], []);
+        let request = [
+          [ method, uri, 'HTTP/1.1' ].join(' '),
+          ...headers.map(({ key, value }) => [ key, value ].join(': '))
+        ].join('\n');
+        if (body) request = [ request, body ].join('\n\n');
+        this.block.update(request);
+      }
+    }
+
+    class ResponseView extends ResultViewFragment {
+      get title() { return 'Response'; }
+      init() {
+        this.block = new HighlightBlock().to(this);
+      }
+      update($response) {
+        return loader(this.block, Promise.resolve($response).then(response => {
+          let status = [ 'HTTP', response.status, response.statusText ].join(' ');
+          let headers = [ ...response.headers.entries() ].map(this.stringifyHeader).join('\n');
+          let json = /json/.test(response.headers.get('Content-Type'));
+          return response.text().then(result => {
+            let body = result;
+            if (json) {
+              try { body = JSON.stringify(JSON.parse(body), null, 2); } catch (e) { /* ignore */ }
+            }
+            this.block.update([ status, headers, '', body ].join('\n'));
+          });
+        })).catch(({ message }) => {
+          this.block.update(message);
+        });
+      }
+      stringifyHeader([ key, value ]) {
+        key = key.replace(/(?:^|-)./g, $0 => $0.toUpperCase());
+        return [ key, value ].join(': ');
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            .loading {
+              position: relative;
+              min-height: 64px;
+              &:after {
+                position: absolute;
+                left: 3px;
+                right: 3px;
+                top: 3px;
+                bottom: 3px;
+                content: '';
+                background: rgba(248, 248, 250, 0.8) url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHdpZHRoPScyNHB4JyBoZWlnaHQ9JzI0cHgnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSIjN2NjZmFmIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1kYXNob2Zmc2V0IiBkdXI9IjJzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgZnJvbT0iMCIgdG89IjUwMiI+PC9hbmltYXRlPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1kYXNoYXJyYXkiIGR1cj0iMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiB2YWx1ZXM9IjE1MC42IDEwMC40OzEgMjUwOzE1MC42IDEwMC40Ij48L2FuaW1hdGU+PC9jaXJjbGU+PC9zdmc+') 50% 50% no-repeat;
+                backdrop-filter: blur(3px);
+                -webkit-backdrop-filter: blur(3px);
+                cursor: progress;
+              }
+            }
+          }
+        `;
+      }
+    }
+
+    class ResultView extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <jkl-response-view ref="responseView"></jkl-response-view>
+            <jkl-request-view ref="requestView"></jkl-request-view>
+          </div>
+        `;
+      }
+      init() {
+        this.element.dispatchEvent(new CustomEvent('sendrequest', { bubbles: true }));
+      }
+      update(request, $response) {
+        this.requestView.update(request);
+        this.responseView.update($response);
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            padding: 0 40px 40px;
+            background: #f0f1f4;
+            height: 100%;
+            box-sizing: border-box;
+            overflow: auto;
+          }
+        `;
+      }
+    }
+
+    class SideBarInput extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <input ref="input" placeholder={placeholder} />
+          </div>
+        `;
+      }
+      get placeholder() { return ''; }
+      set value(value) { this.input.value = value; }
+      get value() { return this.input.value; }
+      select() {
+        this.input.select();
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            padding: 0 1em;
+            display: flex;
+            box-sizing: border-box;
+            color: #dbdfeb;
+            background: #3f4555;
+            line-height: 40px;
+            border: 0 none;
+            border-radius: 8px;
+            > input {
+              margin: 0;
+              padding: 0;
+              flex: 1;
+              border: 0 none;
+              color: inherit;
+              background: transparent;
+              font: inherit;
+              vertical-align: middle;
+              outline: none;
+              &::-webkit-input-placeholder {
+                color: #5d6577;
+              }
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarMethodSelect extends Jinkela {
+      get template() {
+        return `
+          <select>
+            <option>GET</option>
+            <option>POST</option>
+            <option>PUT</option>
+            <option>PATCH</option>
+            <option>DELETE</option>
+          </select>
+        `;
+      }
+      set value(value) {
+        this.element.value = value;
+      }
+      get value() {
+        return this.element.value;
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            padding: 0 1.5em 0 1em;
+            color: #dbdfeb;
+            background: #3f4555;
+            font: inherit;
+            width: 100px;
+            height: 40px;
+            border: 0 none;
+            border-radius: 8px;
+            outline: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAqdJREFUeNpi/P//P8NAAiaGAQajDhh1wKgDGEDlADqGAnYgNoLS5AI2IDaEmYHVLhwOYFVT1/HOLqzdoaKm5Q3ik2E5q5KyumdWQc02dU1dPxAfm11Yo0BJRcPOLzCqUUBASC8gKKZRQUnViURHsIL0BIXGNwoKChv4BUTVAx1jT3QaiIhOy+fh45diZ+dgANEhEclNcgrKDkQ6glVGVsEOqKcBqFcGZAY3L59kREx6PtEOYOdgb2RlY/vKzsHBwAHEfHz8smGRKY1S0nLWQGkWPJazgNSER6c1AfXIg/SCzACa9R1oZhM2DYzYKiNGRkaGrokLLViYWZYxMDJw/P71i+Hnzx8MHz68v7ts4bSaF8+fHAEq+4umjVlMXNIyJiGnTUBQSAXkc6DFwETG8OPP3z8xZfnxx7DZhTMbAjWcYGRijGdiYvrJxsbOADJQQEBQOTIuo1FYWNQCZCGy5cIiYubR8dlNyJYD9f4GmpEIspyscqAwK+ow0AfJQEN+gwxkY2dnACYqtdjk3CaQhVD9TEJCIqYxidlNgkLCGiA1MMtBeoFmHMRnB84oQAYTpi13B0bFrH///rH++vWT4dfPnwxv3766PHdGbw0oeyenF7cICYvqgeIbFFpAy/8ALU8vyIrcjl7mkOUAqCN8gCEx/e/fv8wwR7x7++oC0FF/RUQljEE+B1nOzMz89/+//9lAyzdhK/TIdgDUEYFAR0wCOQKUMH///gVJ+qysyJYXAS1fjavUpcgBUEeEAx3R9+/vP8a//yAZgZmJmYGJmek/0PISoOXL8RX7FDsA7IjpK2KBajpAShFm/68uyIxYQKjeoUptCLRoMdCwemBiAyU4kNENhCynKBfgiY4MUAwAg30qsTUvUQ4YbRGNOmDUAaMOoCcACDAAFHYu4lUVtcQAAAAASUVORK5CYII=');
+            background-position: 90% 50%;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            cursor: pointer;
+            &:hover {
+              color: #fff;
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarQueryStringInput extends SideBarInput {
+      get styleSheet() {
+        return `
+          :scope {
+            flex: 1;
+            &:before {
+              margin-right: .2em;
+              content: '?';
+              color: #5d6577;
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarSendButton extends Jinkela {
+      get template() { return '<button>Send</button>'; }
+      get styleSheet() {
+        return `
+          :scope {
+            padding: 0 1em;
+            height: 40px;
+            color: #dbdfeb;
+            background: transparent;
+            font: inherit;
+            border: 2px solid #959cad;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            transition: .15s background;
+            &:hover {
+              color: #fff;
+              border-color: #fff;
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarMethod extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <jkl-side-bar-method-select ref="methodSelect" on-change={methodChange}></jkl-side-bar-method-select>
+            <jkl-side-bar-query-string-input
+              ref="queryStringInput"
+              on-input={queryStringChange}
+              placeholder="query string"></jkl-side-bar-query-string-input>
+            <jkl-side-bar-send-button></jkl-side-bar-send-button>
+          </div>
+        `;
+      }
+      set method(value) { this.methodSelect.value = value; }
+      get method() { return this.methodSelect.value; }
+      set queryString(value) { this.queryStringInput.value = value; }
+      get queryString() { return this.queryStringInput.value; }
+      methodChange() {
+        this.element.dispatchEvent(new CustomEvent('methodchange', { bubbles: true, detail: this.method }));
+      }
+      queryStringChange() {
+        this.element.dispatchEvent(new CustomEvent('querystringchange', { bubbles: true, detail: this.queryString }));
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            margin: -.25em;
+            display: flex;
+            & > * {
+              margin: .25em;
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarKeyValuePairCheckBox extends Jinkela {
+      get template() {
+        return `
+          <input type="checkbox" />
+        `;
+      }
+      set checked(value) {
+        this.element.checked = value;
+      }
+      get checked() {
+        return this.element.checked;
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            margin: 0 8px 0 10px;
+            width: 18px;
+            height: 18px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: #2d2f3b;
+            border-radius: 4px;
+            cursor: pointer;
+            outline: none;
+            &:hover {
+              background: #262c39;
+            }
+            &:checked {
+              background-position: center center;
+              background-repeat: no-repeat;
+              background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOCIgaGVpZ2h0PSI2IiB2aWV3Qm94PSIwIDAgOCA2IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGQ9Ik0xIDIuOTRsMi4wMyAyLjAzTDcgMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9zdmc+');
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarKeyValuePairInput extends SideBarInput {
+      get styleSheet() {
+        return `
+          :scope {
+            padding: 4px 6px 4px 0;
+            flex: 1;
+            border-radius: 0;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            line-height: 32px;
+          }
+        `;
+      }
+    }
+
+    class SideBarKeyValuePair extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <jkl-side-bar-key-value-pair-check-box
+              ref="enabledCheckBox"
+              on-click={emitChange}>
+            </jkl-side-bar-key-value-pair-check-box>
+            <jkl-side-bar-key-value-pair-input
+              placeholder="key"
+              ref="keyInput"
+              on-input="{emitChange}">
+            </jkl-side-bar-key-value-pair-input>
+            <jkl-side-bar-key-value-pair-input
+              placeholder="value"
+              ref="valueInput"
+              on-input="{emitChange}">
+            </jkl-side-bar-key-value-pair-input>
+          </div>
+        `;
+      }
+      set enabled(value) { this.enabledCheckBox.checked = value; }
+      get enabled() { return this.enabledCheckBox.checked; }
+      set key(value) { this.keyInput.value = value; }
+      get key() { return this.keyInput.value; }
+      set value(value) { this.valueInput.value = value; }
+      get value() { return this.valueInput.value; }
+      select() {
+        this.keyInput.select();
+      }
+      emitChange() {
+        this.element.dispatchEvent(new CustomEvent('pairchange', { bubbles: true }));
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            margin-bottom: 1px;
+            display: flex;
+            align-items: center;
+            background: #3f4555;
+            font-size: 12px;
+          }
+        `;
+      }
+    }
+
+    class SideBarKeyValueAdd extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <span ref="children"></span>
+          </div>
+        `;
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            padding: 0 11px 0 35px;
+            display: flex;
+            align-items: center;
+            height: 40px;
+            color: #5d6577;
+            background: #3f4555 url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMiI+PHBhdGggZD0iTTUgMTJWN0gwVjVoNVYwaDJ2NWg1djJIN3Y1eiIgZmlsbD0iIzVkNjU3NyIvPjwvc3ZnPg==') 12px 50% no-repeat;
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+            font-size: 12px;
+            cursor: pointer;
+            &:hover {
+              color: #fff;
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarKeyValueCollection extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <div ref="list"></div>
+            <div>
+              <jkl-side-bar-key-value-add on-click={add}>{text}</jkl-side-bar-key-value-add>
+            </div>
+          </div>
+        `;
+      }
+      get text() { return 'add'; }
+      set collection(value) {
+        while (this.list.firstChild) this.list.firstChild.remove();
+        this.$collection = SideBarKeyValuePair
+          .from(value.map(({ key, value }) => ({ enabled: true, key, value })))
+          .to(this.list);
+      }
+      get collection() {
+        return (this.$collection || [])
+          .filter(({ enabled, key }) => enabled && key)
+          .map(({ key, value }) => ({ key, value }));
+      }
+      add() {
+        let item = new SideBarKeyValuePair({ enabled: true, key: 'new item' }).to(this.list);
+        item.select();
+        (this.$collection || (this.$collection = [])).push(item);
+        this.element.dispatchEvent(new CustomEvent('collectionchange', { bubbles: true }));
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            > * {
+              border-radius: 4px;
+              overflow: hidden;
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarBodyEditor extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <h3>Body</h3>
+          </div>
+        `;
+      }
+      init() {
+        this.cm = CodeMirror(this.element, {
+          mode: 'application/json',
+          theme: 'material'
+        });
+      }
+      didMount() {
+        this.refresh();
+      }
+      set value(value) { this.cm.setValue(value); }
+      get value() { return this.cm.getValue(); }
+      refresh() {
+        setTimeout(() => this.cm.refresh(), 0);
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            .CodeMirror {
+              padding: 1em;
+              height: 10em;
+              border-radius: 8px;
+              background: #3f4555;
+              font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+              line-height: 1.5;
+            }
+          }
+        `;
+      }
+    }
+
+    class SideBarHeaderCollection extends SideBarKeyValueCollection {
+      get value() {
+        return this.collection
+          .reduce((result, { key, value }) => {
+            (result[key] || (result[key] = [])).push(value);
+            return result;
+          }, {});
+      }
+    }
+
+    class SideBar extends Jinkela {
+      get template() {
+        return `
+          <form on-submit={submit}>
+            <jkl-side-bar-method
+              ref="methodComponent"
+              on-methodchange={methodChange}
+              on-querystringchange={syncQueryParameters}>
+            </jkl-side-bar-method>
+            <h3>Query Parameters</h3>
+            <jkl-side-bar-key-value-collection
+              ref="queryParameterCollection"
+              text="add query parameter"
+              on-collectionchange={syncQueryString}
+              on-pairchange={syncQueryString}>
+            </jkl-side-bar-key-value-collection>
+            <jkl-side-bar-body-editor ref="bodyEditor"></jkl-side-bar-body-editor>
+            <h3>Headers</h3>
+            <jkl-side-bar-header-collection
+              ref="headerCollection"
+              text="add header">
+          </form>
+        `;
+      }
+      get method() { return this.methodComponent.method; }
+      set queryString(value) { this.methodComponent.queryString = value; }
+      get queryString() { return this.methodComponent.queryString; }
+      get body() { return this.bodyEditor.value; }
+      get headers() { return this.headerCollection.value; }
+      set isBodyVisible(value) {
+        if (value) {
+          this.bodyEditor.element.style.display = 'block';
+          this.bodyEditor.refresh();
+        } else {
+          this.bodyEditor.element.style.display = 'none';
+        }
+      }
+      get isBodyVisible() { return this.bodyEditor.element.style.display !== 'none'; }
+      init() {
+        this.queryString = location.search.replace(/^\?/, '');
+        this.methodChange();
+        this.syncQueryParameters();
+      }
+      submit(e) {
+        e.preventDefault();
+        this.element.dispatchEvent(new CustomEvent('sendrequest', { bubbles: true }));
+      }
+      methodChange() {
+        this.isBodyVisible = ![ 'HEAD', 'GET' ].includes(this.method);
+      }
+      syncQueryParameters() {
+        let { queryString } = this;
+        let queryParameters = queryString.split('&')
+          .filter(entry => entry.length)
+          .map(entry => entry.split('='))
+          .map(([ key, value = '' ]) => ({ key: QueryString.decode(key), value: QueryString.decode(value) }));
+        this.queryParameterCollection.collection = queryParameters;
+      }
+      syncQueryString(e) {
+        let { collection } = this.queryParameterCollection;
+        let queryString = collection
+          .map(({ key, value }) => [ QueryString.encode(key), QueryString.encode(value) ].join('='))
+          .join('&');
+        this.methodComponent.queryString = queryString;
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            padding: 40px;
+            box-sizing: border-box;
+            color: #fff;
+            background: #2d2f3b;
+            transition: transform 1s;
+            height: 100%;
+            box-sizing: border-box;
+            overflow: auto;
+            h3 {
+              margin-left: -40px;
+              margin-right: -40px;
+              padding: 20px 40px;
+              border-bottom: 1px solid #373b48;
+              font-size: 17px;
+              font-weight: 600;
+            }
+          }
+        `;
+      }
+    }
+
+    class Main extends Jinkela {
+      get template() {
+        return `
+          <div on-sendrequest={sendRequest}>
+            <section>
+              <jkl-result-view ref="resultView"></jkl-result-view>
+            </section>
+            <aside>
+              <jkl-side-bar ref="sideBar"></jkl-side-bar>
+            </aside>
+          </div>
+        `;
+      }
+      init() {
+        this.sendRequest();
+        Configuration.watch('settings.sidebar.collapse', value => {
+          if (value) {
+            this.element.classList.add('sidebar-collapse');
+          } else {
+            this.element.classList.remove('sidebar-collapse');
+          }
+        });
+      }
+      sendRequest() {
+        let path = location.pathname;
+        let { method, queryString, body, headers } = this.sideBar;
+        let defaultHeaders = {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        };
+        let uri = path;
+        if (queryString) uri += '?' + queryString;
+        let options = { method, headers };
+        if (this.sideBar.isBodyVisible) options.body = body;
+        let $response = fetch(uri, options);
+        this.resultView.update({ method, path, queryString, body, headers }, $response);
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            position: relative;
+            flex: 1;
+            width: 100%;
+            > section, > aside {
+              position: absolute;
+              top: 0;
+              bottom: 0;
+            }
+            > section {
+              left: 0;
+              width: 57%;
+              transition: width .01s .7s;
+            }
+            > aside {
+              left: 57%;
+              right: 0;
+              transition: transform .7s;
+            }
+            &.sidebar-collapse {
+              > section {
+                width: 100%;
+                transition: none;
+              }
+              > aside {
+                transform: translateX(100%);
+              }
+            }
+          }
+        `;
+      }
+    }
+
+    class Frame extends Jinkela {
+      get template() {
+        return `
+          <div>
+            <jkl-header></jkl-header>
+            <jkl-main></jkl-main>
+          </div>
+        `;
+      }
+      get styleSheet() {
+        return `
+          html {
+            height: 100%;
+            overflow: hidden;
+          }
+          body {
+            margin: 0;
+            height: 100%;
+            background: #fff;
+            color: #4c555a;
+            font-family:
+              "Alright Sans LP", "Avenir Next", "Helvetica Neue", Helvetica, Arial, "PingFang SC",
+              "Source Han Sans SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi MicroHei", sans-serif;
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+            line-height: 26px;
+          }
+          pre, code {
+            font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+          }
+          :scope {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+          }
+        `;
+      }
+    }
+
+    addEventListener('load', () => new Frame().to(document.body));
+  </script>
+</head>
+</html>

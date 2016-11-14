@@ -1,0 +1,17 @@
+{
+  "name": "restc",
+  "version": "0.0.1",
+  "description": "A server-side middleware to visualize REST requests.",
+  "repository": "https://github.com/ElemeFE/restc.git",
+  "license": "MIT",
+  "faas": {
+    "domain": "restc",
+    "public": "faas",
+    "description": "A server-side middleware to visualize REST requests.",
+    "author_name": "lujjjh",
+    "author_email": "jiahao.lu02@ele.me",
+    "notice": [
+      "jiahao.lu02@ele.me"
+    ]
+  }
+}
