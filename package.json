@@ -15,13 +15,6 @@
       "jiahao.lu02@ele.me"
     ]
   },
-  "reciperConfig": {
-    "name": "restc",
-    "languages": [
-      "javascript",
-      "nginx"
-    ]
-  },
   "dependencies": {
     "request": "^2.78.0"
   }

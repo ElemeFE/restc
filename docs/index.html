@@ -8,15 +8,15 @@
   </script>
   <script>
     let ROOT = location.pathname.match(/^\/restc|$/)[0];
-    fetch('/package.json').then(function(response) { return response.json(); }).then(function(pkg) {
-      var config = pkg.reciperConfig;
-      config.home = ROOT + '/';
-      config.description = pkg.description;
-      config.items = [
-        { 'text': '简介', 'href': ROOT + '/intro/' },
-        { 'text': '指南', 'href': ROOT + '/guide/' }
-      ];
-      reciper(config);
+    reciper({
+      home: ROOT + '/',
+      name: 'restc',
+      description: 'RESTful 接口调试分享利器',
+      languages: [ 'javascript', 'nginx' ],
+      items: [
+        { text: '简介', href: ROOT + '/intro/' },
+        { text: '指南', href: ROOT + '/guide/' }
+      ]
     });
   </script>
 </head>
