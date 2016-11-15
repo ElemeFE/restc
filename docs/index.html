@@ -12,12 +12,30 @@
       home: ROOT + '/',
       name: 'restc',
       description: 'RESTful 接口调试分享利器',
+      logoUrl: ROOT + '/images/logo.svg',
       languages: [ 'javascript', 'nginx' ],
       items: [
         { text: '简介', href: ROOT + '/intro/' },
         { text: '指南', href: ROOT + '/guide/' }
-      ]
+      ],
+      "primaryColor": "#4c5264"
     });
   </script>
+  <style>
+    header + .logo {
+      margin-top: 0 !important;
+    }
+    header + .logo + div {
+      display: none;
+    }
+    header > .logo {
+      margin: -15px 0;
+      width: 70px !important;
+      height: 70px !important;
+    }
+    header > .logo + a {
+      display: none;
+    }
+  </style>
 </head>
 </html>
