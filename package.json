@@ -2,6 +2,7 @@
   "name": "restc",
   "version": "0.0.1",
   "description": "A server-side middleware to visualize REST requests.",
+  "main": "index.js",
   "repository": "https://github.com/ElemeFE/restc.git",
   "license": "MIT",
   "faas": {
@@ -13,5 +14,15 @@
     "notice": [
       "jiahao.lu02@ele.me"
     ]
+  },
+  "reciperConfig": {
+    "name": "restc",
+    "languages": [
+      "javascript",
+      "nginx"
+    ]
+  },
+  "dependencies": {
+    "request": "^2.78.0"
   }
 }
