@@ -17,4 +17,4 @@ restc（发音同 rest-see /'restˌsi/）是一个 HTTP 服务器中间件，用
 
 ## 如何使用 restc？
 
-请参见 [指南](/docs/guide)。
+请参见 [指南](../guide/)。
