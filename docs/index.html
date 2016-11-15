@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="https://github.elemecdn.com/YanagiEiichi/reciper/0.1.5/index.js"></script>
+  <script>
+    if (!window.fetch) document.write('<script src="https://github.elemecdn.com/uglifyjs!github/fetch/v1.0.0/fetch.js"><\/script>');
+  </script>
+  <script>
+    fetch('/package.json').then(function(response) { return response.json(); }).then(function(pkg) {
+      var config = pkg.reciperConfig;
+      config.description = pkg.description;
+      config.items = [
+        { 'text': '简介', 'href': '/docs/intro/' },
+        { 'text': '指南', 'href': '/docs/guide/' }
+      ];
+      reciper(config);
+    });
+  </script>
+</head>
+</html>
