@@ -1,0 +1,13 @@
+{
+  "name": "restc-example-express",
+  "version": "1.0.0",
+  "description": "An example to demostrate how to use restc in express.",
+  "private": true,
+  "main": "index.js",
+  "author": "lujjjh <lujjjh@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.14.0",
+    "restc": "0.0.2"
+  }
+}
