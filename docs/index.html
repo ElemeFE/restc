@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <script src="https://github.elemecdn.com/YanagiEiichi/reciper/0.1.5/index.js"></script>
   <script>
+    if (!window.Promise) document.write('<script src="https://github.elemecdn.com/jakearchibald/es6-promise/v3.0.2/dist/es6-promise.min.js"><\/script>');
     if (!window.fetch) document.write('<script src="https://github.elemecdn.com/uglifyjs!github/fetch/v1.0.0/fetch.js"><\/script>');
   </script>
   <script>
@@ -25,6 +26,7 @@
   <style>
     header + .logo {
       margin-top: 0 !important;
+      cursor: pointer;
     }
     header + .logo + div {
       display: none;
@@ -38,5 +40,14 @@
       display: none;
     }
   </style>
+  <script>
+    if (location.pathname === ROOT + '/') {
+      addEventListener('click', ({ target }) => {
+        if (target.tagName === 'IMG') {
+          location.pathname = ROOT + '/intro/';
+        }
+      });
+    }
+  </script>
 </head>
 </html>
