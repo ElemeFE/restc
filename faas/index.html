@@ -60,6 +60,22 @@
       static decode(s) {
         return decodeURIComponent(s.replace(/\+/g, '%20'));
       }
+      static parse(queryString, preserveOrder = false) {
+        let result = queryString.split('&')
+          .filter(entry => entry.length)
+          .map(entry => entry.split('='))
+          .map(([ key, value = '' ]) => ({ key: this.decode(key), value: this.decode(value) }));
+        if (preserveOrder) return result;
+        return result.reduce((result, { key, value }) => Object.assign(result, { [key]: value }), {});
+      }
+      static stringify(parameters) {
+        if (!Array.isArray(parameters)) {
+          parameters = Object.keys(parameters).map(key => ({ key, value: parameters[key] }));
+        }
+        return parameters
+          .map(({ key, value }) => [ this.encode(key), this.encode(value) ].join('='))
+          .join('&');
+      }
     }
 
     function loader({ element }, $promise) {
@@ -610,15 +626,20 @@
         `;
       }
       get text() { return 'add'; }
-      set collection(value) {
+      fromJSON(json) {
         while (this.list.firstChild) this.list.firstChild.remove();
         this.$collection = SideBarKeyValuePair
-          .from(value.map(({ key, value }) => ({ enabled: true, key, value })))
+          .from(json.map(({ enabled = true, key, value }) => ({ enabled, key, value })))
           .to(this.list);
       }
-      get collection() {
+      toJSON() {
         return (this.$collection || [])
-          .filter(({ enabled, key }) => enabled && key)
+          .map(({ enabled, key, value }) => ({ enabled, key, value }));
+      }
+      set collection(value) { this.fromJSON(value); }
+      get collection() {
+        return this.toJSON()
+          .filter(({ enabled }) => enabled)
           .map(({ key, value }) => ({ key, value }));
       }
       add() {
@@ -711,11 +732,39 @@
           </form>
         `;
       }
+      set method(value) {
+        this.methodComponent.method = value;
+        this.methodChange();
+      }
       get method() { return this.methodComponent.method; }
-      set queryString(value) { this.methodComponent.queryString = value; }
+      set queryString(value) {
+        this.methodComponent.queryString = value;
+        this.syncQueryParameters();
+      }
       get queryString() { return this.methodComponent.queryString; }
+      set queryParameters(value) {
+        this.queryParameterCollection.collection = value;
+        this.syncQueryString();
+      }
+      get queryParameters() { return this.queryParameterCollection.collection; }
+      set body(value) { return this.bodyEditor.value = value; }
       get body() { return this.bodyEditor.value; }
+      set headers(value) { this.headerCollection.collection = value; }
       get headers() { return this.headerCollection.value; }
+      fromJSON(json) {
+        let { method, q, body, headers } = json;
+        if (method) this.method = method.toUpperCase();
+        this.queryParameterCollection.fromJSON(q);
+        this.syncQueryString();
+        if (body) this.body = body;
+        if (headers) this.headerCollection.fromJSON(headers);
+      }
+      toJSON() {
+        let { method, body } = this;
+        let q = this.queryParameterCollection.toJSON();
+        let headers = this.headerCollection.toJSON();
+        return { method, q, body, headers };
+      }
       set isBodyVisible(value) {
         if (value) {
           this.bodyEditor.element.style.display = 'block';
@@ -728,28 +777,24 @@
       init() {
         this.queryString = location.search.replace(/^\?/, '');
         this.methodChange();
-        this.syncQueryParameters();
       }
       submit(e) {
         e.preventDefault();
         this.element.dispatchEvent(new CustomEvent('sendrequest', { bubbles: true }));
+        // sync config to hash
+        location.hash = '#!' + JSON.stringify(this.toJSON());
       }
       methodChange() {
         this.isBodyVisible = ![ 'HEAD', 'GET' ].includes(this.method);
       }
       syncQueryParameters() {
         let { queryString } = this;
-        let queryParameters = queryString.split('&')
-          .filter(entry => entry.length)
-          .map(entry => entry.split('='))
-          .map(([ key, value = '' ]) => ({ key: QueryString.decode(key), value: QueryString.decode(value) }));
+        let queryParameters = QueryString.parse(queryString, true);
         this.queryParameterCollection.collection = queryParameters;
       }
-      syncQueryString(e) {
+      syncQueryString() {
         let { collection } = this.queryParameterCollection;
-        let queryString = collection
-          .map(({ key, value }) => [ QueryString.encode(key), QueryString.encode(value) ].join('='))
-          .join('&');
+        let queryString = QueryString.stringify(collection);
         this.methodComponent.queryString = queryString;
       }
       get styleSheet() {
@@ -791,6 +836,7 @@
       }
       init() {
         this.sendRequest();
+        this.loadFromHashParameters();
         Configuration.watch('settings.sidebar.collapse', value => {
           if (value) {
             this.element.classList.add('sidebar-collapse');
@@ -798,6 +844,7 @@
             this.element.classList.remove('sidebar-collapse');
           }
         });
+        addEventListener('hashchange', () => this.loadFromHashParameters());
       }
       sendRequest() {
         let path = location.pathname;
@@ -813,6 +860,14 @@
         if (this.sideBar.isBodyVisible) options.body = body;
         let $response = fetch(uri, options);
         this.resultView.update({ method, path, queryString, body, headers }, $response);
+      }
+      loadFromHashParameters() {
+        try {
+          let parameters = JSON.parse(location.hash.replace(/^#!?/, ''));
+          this.sideBar.fromJSON(parameters);
+        } catch (error) {
+          /* ignore */
+        }
       }
       get styleSheet() {
         return `
