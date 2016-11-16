@@ -238,7 +238,7 @@
       }
       update($response) {
         return loader(this.block, Promise.resolve($response).then(response => {
-          let status = [ 'HTTP', response.status, response.statusText ].join(' ');
+          let status = [ 'HTTP/1.1', response.status, response.statusText ].join(' ');
           let headers = [ ...response.headers.entries() ].map(this.stringifyHeader).join('\n');
           let json = /json/.test(response.headers.get('Content-Type'));
           return response.text().then(result => {
