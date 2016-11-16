@@ -860,6 +860,8 @@
         if (this.sideBar.isBodyVisible) options.body = body;
         let $response = fetch(uri, options);
         this.resultView.update({ method, path, queryString, body, headers }, $response);
+        // sync title
+        document.title = [ method, uri ].join(' ');
       }
       loadFromHashParameters() {
         try {
