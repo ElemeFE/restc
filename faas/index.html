@@ -219,7 +219,9 @@
         let uri = path;
         if (queryString) uri += '?' + queryString;
         headers = Object.keys(headers)
-          .reduce((result, key) => [ ...result, ...headers[key].map(value => ({ key, value })) ], []);
+          .map(key => ({ key, value: headers[key] }))
+          .map(({ key, value }) => ({ key, values: Array.isArray(value) ? value : [ value ] }))
+          .reduce((result, { key, values }) => [ ...result, ...values.map(value => ({ key, value })) ], []);
         let request = [
           [ method, uri, 'HTTP/1.1' ].join(' '),
           ...headers.map(({ key, value }) => [ key, value ].join(': '))
@@ -801,12 +803,13 @@
         let path = location.pathname;
         let { method, queryString, body, headers } = this.sideBar;
         let defaultHeaders = {
-          Accept: 'application/json',
+          Accept: 'application/json, */*',
           'Content-Type': 'application/json'
         };
+        headers = Object.assign({}, defaultHeaders, headers);
         let uri = path;
         if (queryString) uri += '?' + queryString;
-        let options = { method, headers };
+        let options = { method, headers, credentials: 'include' };
         if (this.sideBar.isBodyVisible) options.body = body;
         let $response = fetch(uri, options);
         this.resultView.update({ method, path, queryString, body, headers }, $response);
