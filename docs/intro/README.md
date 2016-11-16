@@ -2,12 +2,9 @@
 
 restc（发音同 rest-see /'restˌsi/）是一个 HTTP 服务器中间件，用于可视化展示请求，调试 RESTful 接口。
 
-挂载 restc 中间件后，访问者无需安装浏览器插件，直接访问接口地址，即可以可视化的方式对该接口发起 GET、POST、<!--
---> PUT、PATCH、DELETE 请求。
+挂载 restc 中间件后，访问者无需安装浏览器插件，直接访问接口地址，即可以可视化的方式对该接口发起 GET、POST、PUT、PATCH、DELETE 请求。
 
-![][restc-screenshot]
-
-[restc-screenshot]: https://fuss10.elemecdn.com/1/45/78e664650069cb51da1235d34a52fjpeg.jpeg
+<img src="https://fuss10.elemecdn.com/1/45/78e664650069cb51da1235d34a52fjpeg.jpeg" width="600" height="403" />
 
 ## 为什么用 restc？
 

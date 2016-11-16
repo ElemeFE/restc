@@ -5,7 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="chrome=1" />
   <meta name="renderer" content="webkit" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0" />
-  <script src="https://github.elemecdn.com/YanagiEiichi/reciper/0.1.5/index.js"></script>
+  <script src="https://github.elemecdn.com/YanagiEiichi/reciper/0.1.6/index.js"></script>
   <script>
     if (!window.Promise) document.write('<script src="https://github.elemecdn.com/jakearchibald/es6-promise/v3.0.2/dist/es6-promise.min.js"><\/script>');
     if (!window.fetch) document.write('<script src="https://github.elemecdn.com/uglifyjs!github/fetch/v1.0.0/fetch.js"><\/script>');
@@ -17,6 +17,7 @@
       name: 'restc',
       description: 'RESTful 接口调试分享利器',
       logoUrl: ROOT + '/images/logo.svg',
+      logoHref: ROOT + '/intro/',
       languages: [ 'javascript', 'nginx' ],
       items: [
         { text: '简介', href: ROOT + '/intro/' },
@@ -29,29 +30,18 @@
   <style>
     header + .logo {
       margin-top: 0 !important;
-      cursor: pointer;
     }
     header + .logo + div {
       display: none;
     }
     header > .logo {
-      margin: -15px 0;
+      margin: -15px auto;
       width: 70px !important;
       height: 70px !important;
-      cursor: pointer;
     }
     header > .logo + a {
       display: none;
     }
   </style>
-  <script>
-    if (location.pathname === ROOT + '/') {
-      addEventListener('click', ({ target }) => {
-        if (target.tagName === 'IMG') {
-          location.pathname = ROOT + '/intro/';
-        }
-      });
-    }
-  </script>
 </head>
 </html>
