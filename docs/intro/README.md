@@ -26,12 +26,18 @@ restc 用于可视化展示请求，调试 RESTful 接口。
 
 <img src="https://fuss10.elemecdn.com/d/d1/3bee7ea4630b9b22d7428221f9308jpeg.jpeg" width="637" height="397"/>
 
-## 3. 特点
+## 3. 原理
+
+restc 的原理是根据请求头中的 accept 字段来判断请求是来自浏览器页面打开还是 ajax 请求（直接用页面打开时浏览器的 accept 会包含 text/html）。
+
+对于浏览器页面打开的请求将对其渲染测试工具的 UI 界面。
+
+## 4. 特点
 
 1. 引入成本低：可以低成本地引入到绝大多数现有的 Web API 项目中。
 2. 使用方便：客户端无需下载额外的软件或插件，在任何现代浏览器中直接访问 API endpoint 即可调试该 API。
 3. 便于分享：由于是直接访问 API endpoint，因此可以很方便地分享某个请求。
 
-## 4. 用法
+## 5. 用法
 
 请参见 [指南](../guide/)。
