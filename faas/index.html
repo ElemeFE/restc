@@ -78,7 +78,9 @@
       }
     }
 
-    function loader({ element }, $promise) {
+    const isBodyEnable = method => ![ 'HEAD', 'GET' ].includes(method);
+
+    const loader = ({ element }, $promise) => {
       element.classList.add('loading');
       let restore = () => { element.classList.remove('loading'); };
       return $promise.then(data => {
@@ -242,7 +244,7 @@
           [ method, uri, 'HTTP/1.1' ].join(' '),
           ...headers.map(({ key, value }) => [ key, value ].join(': '))
         ].join('\n');
-        if (body) request = [ request, body ].join('\n\n');
+        if (isBodyEnable(method) && body) request = [ request, body ].join('\n\n');
         this.block.update(request);
       }
     }
@@ -793,7 +795,7 @@
         }
       }
       methodChange() {
-        this.isBodyVisible = ![ 'HEAD', 'GET' ].includes(this.method);
+        this.isBodyVisible = isBodyEnable(this.method);
       }
       syncQueryParameters() {
         let { queryString } = this;
