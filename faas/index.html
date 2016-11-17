@@ -270,12 +270,15 @@
     }
 
     class ResultView extends Jinkela {
+      get padding() { return 40; }
+      get btnWidth() { return 120; }
       get template() {
         return `
           <dl>
             <dt on-click="{click}">
-              <a href="JavaScript:" data-binding="ResponseView">Response</a>
-              <a href="JavaScript:" data-binding="RequestView">Request</a>
+              <span ref="underline"></span>
+              <a href="JavaScript:" data-binding="ResponseView" data-nth="0">Response</a>
+              <a href="JavaScript:" data-binding="RequestView" data-nth="1">Request</a>
             </dt>
             <dd>
               <meta ref="list" />
@@ -284,12 +287,9 @@
         `;
       }
       click({ target }) {
-        if (this.activeTarget === target) return;
         let binding = target.dataset.binding;
         if (!binding) return;
-        if (this.activeTarget) this.activeTarget.classList.remove('active');
-        this.activeTarget = target;
-        target.classList.add('active');
+        this.underline.style.left = this.padding + target.dataset.nth * this.btnWidth + 'px';
         this.list.forEach(item => {
           item.element.style.display = item.constructor.name === binding ? 'block' : 'none';
         });
@@ -321,19 +321,34 @@
             display: flex;
             flex-direction: column;
             > dt {
+              position: relative;
               border-bottom: 1px solid #e4e4ec;
-              padding: 0 40px;
+              padding: 0 ${this.padding}px;
               margin: 0;
+              font-size: 0;
               > a {
+                position: relative;
+                z-index: 1;
                 text-decoration: none;
                 display: inline-block;
+                box-sizing: border-box;
                 padding: .5em 1em;
                 font-size: 16px;
+                width: ${this.btnWidth}px;
+                text-align: center;
                 font-weight: 600;
                 color: #5d6576;
-                transition: background 200ms ease;
-                &.active { background: #f1f1f6; }
-                &:hover { background: #f8f8fc; }
+                &:hover { opacity: .8; }
+              }
+              > span {
+                transition: left 200ms ease, right 200ms ease;
+                position: absolute;
+                top: 0;
+                bottom: -1px;
+                font-size: 16px;
+                width: ${this.btnWidth}px;
+                border-bottom: 2px solid #2d2f3b;
+                background: #f1f1f6;
               }
             }
             > dd {
