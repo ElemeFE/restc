@@ -780,7 +780,8 @@
         this.fromJSON({ method, body, headers });
         this.methodChange();
       }
-      submit() {
+      submit(event) {
+        event.preventDefault();
         let { method, body, headers } = this.toJSON();
         let args = this.queryParameterCollection.toJSON().filter(item => item.enabled);
         let search = QueryString.stringify(args);
