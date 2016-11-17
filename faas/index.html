@@ -351,7 +351,7 @@
       get template() {
         return `
           <div>
-            <input ref="input" placeholder={placeholder} />
+            <input ref="input" placeholder="{placeholder}" />
           </div>
         `;
       }
@@ -479,10 +479,10 @@
       get template() {
         return `
           <div>
-            <jkl-side-bar-method-select ref="methodSelect" on-change={methodChange}></jkl-side-bar-method-select>
+            <jkl-side-bar-method-select ref="methodSelect" on-change="{methodChange}"></jkl-side-bar-method-select>
             <jkl-side-bar-query-string-input
               ref="queryStringInput"
-              on-input={queryStringChange}
+              on-input="{queryStringChange}"
               placeholder="query string"></jkl-side-bar-query-string-input>
             <jkl-side-bar-send-button></jkl-side-bar-send-button>
           </div>
@@ -568,7 +568,7 @@
           <div>
             <jkl-side-bar-key-value-pair-check-box
               ref="enabledCheckBox"
-              on-click={emitChange}>
+              on-click="{emitChange}">
             </jkl-side-bar-key-value-pair-check-box>
             <jkl-side-bar-key-value-pair-input
               placeholder="key"
@@ -642,7 +642,7 @@
           <div>
             <div ref="list"></div>
             <div>
-              <jkl-side-bar-key-value-add on-click={add}>{text}</jkl-side-bar-key-value-add>
+              <jkl-side-bar-key-value-add on-click="{add}">{text}</jkl-side-bar-key-value-add>
             </div>
           </div>
         `;
@@ -732,18 +732,18 @@
     class SideBar extends Jinkela {
       get template() {
         return `
-          <form on-submit={submit}>
+          <form on-submit="{submit}">
             <jkl-side-bar-method
               ref="methodComponent"
-              on-methodchange={methodChange}
-              on-querystringchange={syncQueryParameters}>
+              on-methodchange="{methodChange}"
+              on-querystringchange="{syncQueryParameters}">
             </jkl-side-bar-method>
             <h3>Query Parameters</h3>
             <jkl-side-bar-key-value-collection
               ref="queryParameterCollection"
               text="add query parameter"
-              on-collectionchange={syncQueryString}
-              on-pairchange={syncQueryString}>
+              on-collectionchange="{syncQueryString}"
+              on-pairchange="{syncQueryString}">
             </jkl-side-bar-key-value-collection>
             <jkl-side-bar-body-editor ref="bodyEditor"></jkl-side-bar-body-editor>
             <h3>Headers</h3>
