@@ -7,7 +7,6 @@
   "author": "lujjjh <lujjjh@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "koa": "^2.0.0",
-    "restc": "0.0.2"
+    "koa": "^2.0.0"
   }
 }

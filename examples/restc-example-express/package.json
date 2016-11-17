@@ -7,7 +7,6 @@
   "author": "lujjjh <lujjjh@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.14.0",
-    "restc": "0.0.2"
+    "express": "^4.14.0"
   }
 }

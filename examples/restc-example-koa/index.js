@@ -1,5 +1,5 @@
 const app = require('koa')();
-const restc = require('restc');
+const restc = require('../..');
 
 app.use(restc.koa());
 
