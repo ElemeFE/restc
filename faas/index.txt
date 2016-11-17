@@ -1,0 +1,31 @@
+Frame
+  Header
+    Logo
+    SideBarToggleButton
+  Main
+    ResultView
+      ResponseView : ResultViewFragment
+        HighlightBlock
+      RequestView : ResultViewFragment
+        HighlightBlock
+    SideBar
+      SideBarMethod
+        SideBarMethodSelect
+        SideBarQueryStringInput : SideBarInput
+        SideBarSendButton
+      SideBarKeyValueCollection
+      SideBarBodyEditor
+      SideBarHeaderCollection : SideBarKeyValueCollection
+
+SideBarKeyValueCollection
+  SideBarKeyValueAdd
+  SideBarKeyValuePair
+    SideBarKeyValuePairCheckBox
+    SideBarKeyValuePairInput : SideBarInput
+    SideBarKeyValuePairInput : SideBarInput
+
+Configuration
+
+QueryString
+
+loader

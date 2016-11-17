@@ -707,7 +707,6 @@
           }, {});
       }
     }
-
     class SideBar extends Jinkela {
       get template() {
         return `
@@ -752,18 +751,16 @@
       set headers(value) { this.headerCollection.collection = value; }
       get headers() { return this.headerCollection.value; }
       fromJSON(json) {
-        let { method, q, body, headers } = json;
+        let { method, body, headers } = json;
         if (method) this.method = method.toUpperCase();
-        this.queryParameterCollection.fromJSON(q);
         this.syncQueryString();
         if (body) this.body = body;
         if (headers) this.headerCollection.fromJSON(headers);
       }
       toJSON() {
         let { method, body } = this;
-        let q = this.queryParameterCollection.toJSON();
         let headers = this.headerCollection.toJSON();
-        return { method, q, body, headers };
+        return { method, body, headers };
       }
       set isBodyVisible(value) {
         if (value) {
@@ -779,16 +776,19 @@
         this.methodChange();
       }
       loadFromHash() {
-        let { method, q = [], body, headers = [] } = QueryString.parse(location.hash.replace(/^#!?/, ''));
-        try { q = JSON.parse(q); } catch (error) { /* ignore */ }
+        let { method, body, headers = [] } = QueryString.parse(location.hash.replace(/^#!?/, ''));
         try { headers = JSON.parse(headers); } catch (error) { /* ignore */ }
-        this.fromJSON({ method, q, body, headers });
+        this.fromJSON({ method, body, headers });
       }
       syncHash() {
-        let { method, q, body, headers } = this.toJSON();
-        if (q) q = JSON.stringify(q);
+        let { method, body, headers } = this.toJSON();
+        let args = this.queryParameterCollection.toJSON().filter(item => item.enabled);
+        let qs = QueryString.stringify(args);
+        if (qs) qs = '?' + qs;
         if (headers) headers = JSON.stringify(headers);
-        location.hash = '#!' + QueryString.stringify({ method, q, body, headers });
+        let hash = QueryString.stringify({ method, body, headers });
+        if (hash) hash = '#!' + hash;
+        location.href = qs + hash;
       }
       submit(e) {
         e.preventDefault();
@@ -950,7 +950,7 @@
       }
     }
 
-    addEventListener('load', () => new Frame().to(document.body));
+    addEventListener('DOMContentLoaded', () => new Frame().to(document.body));
   </script>
 </head>
 </html>
