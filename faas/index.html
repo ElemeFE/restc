@@ -772,29 +772,25 @@
       }
       get isBodyVisible() { return this.bodyEditor.element.style.display !== 'none'; }
       init() {
-        this.queryString = location.search.replace(/^\?/, '');
-        this.methodChange();
-      }
-      loadFromHash() {
         let { method, body, headers = [] } = QueryString.parse(location.hash.replace(/^#!?/, ''));
         try { headers = JSON.parse(headers); } catch (error) { /* ignore */ }
+        this.queryString = location.search.slice(1);
         this.fromJSON({ method, body, headers });
+        this.methodChange();
       }
-      syncHash() {
+      submit() {
         let { method, body, headers } = this.toJSON();
         let args = this.queryParameterCollection.toJSON().filter(item => item.enabled);
-        let qs = QueryString.stringify(args);
-        if (qs) qs = '?' + qs;
+        let search = QueryString.stringify(args);
+        if (search) search = '?' + search;
         if (headers) headers = JSON.stringify(headers);
         let hash = QueryString.stringify({ method, body, headers });
         if (hash) hash = '#!' + hash;
-        location.href = qs + hash;
-      }
-      submit(e) {
-        e.preventDefault();
-        this.element.dispatchEvent(new CustomEvent('sendrequest', { bubbles: true }));
-        // sync config to hash
-        this.syncHash();
+        if (location.search != search || location.hash != hash) {
+          location.href = search + hash;
+        } else {
+          dispatchEvent(new Event('hashchange'));
+        }
       }
       methodChange() {
         this.isBodyVisible = ![ 'HEAD', 'GET' ].includes(this.method);
@@ -836,7 +832,7 @@
     class Main extends Jinkela {
       get template() {
         return `
-          <div on-sendrequest={sendRequest}>
+          <div>
             <section>
               <jkl-result-view ref="resultView"></jkl-result-view>
             </section>
@@ -848,7 +844,6 @@
       }
       init() {
         this.sendRequest();
-        this.sideBar.loadFromHash();
         Configuration.watch('settings.sidebar.collapse', value => {
           if (value) {
             this.element.classList.add('sidebar-collapse');
@@ -856,7 +851,6 @@
             this.element.classList.remove('sidebar-collapse');
           }
         });
-        addEventListener('hashchange', () => this.sideBar.loadFromHash());
       }
       sendRequest() {
         let path = location.pathname;
@@ -950,7 +944,9 @@
       }
     }
 
-    addEventListener('DOMContentLoaded', () => new Frame().to(document.body));
+    let frame = new Frame();
+    addEventListener('hashchange', () => frame = new Frame().renderWith(frame));
+    addEventListener('DOMContentLoaded', () => frame.to(document.body));
   </script>
 </head>
 </html>
