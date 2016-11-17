@@ -4,9 +4,9 @@ Frame
     SideBarToggleButton
   Main
     ResultView
-      ResponseView : ResultViewFragment
+      ResponseView
         HighlightBlock
-      RequestView : ResultViewFragment
+      RequestView
         HighlightBlock
     SideBar
       SideBarMethod

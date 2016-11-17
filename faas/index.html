@@ -177,30 +177,6 @@
       }
     }
 
-    class ResultViewFragment extends Jinkela {
-      get title() { return 'TITLE'; }
-      get template() {
-        return `
-          <div>
-            <h3>{title}</h3>
-          </div>
-        `;
-      }
-      get styleSheet() {
-        return `
-          :scope {
-            h3 {
-              margin: 0 -40px;
-              padding: 20px 40px;
-              font-size: 17px;
-              font-weight: 600;
-              color: #5d6576;
-            }
-          }
-        `;
-      }
-    }
-
     class HighlightBlock extends Jinkela {
       get template() {
         return `<pre><code class="http" ref="body"></code></pre>`;
@@ -213,9 +189,6 @@
         return `
           :scope {
             margin: 0 -40px;
-            background-color: #f8f8fa;
-            border-top: 1px solid #d8dbe2;
-            border-bottom: 1px solid #d8dbe2;
             font-size: 12px;
             line-height: 1.5;
             & > code {
@@ -228,8 +201,7 @@
       }
     }
 
-    class RequestView extends ResultViewFragment {
-      get title() { return 'Request'; }
+    class RequestView extends Jinkela {
       init() {
         this.block = new HighlightBlock().to(this);
       }
@@ -249,8 +221,7 @@
       }
     }
 
-    class ResponseView extends ResultViewFragment {
-      get title() { return 'Response'; }
+    class ResponseView extends Jinkela {
       init() {
         this.block = new HighlightBlock().to(this);
       }
@@ -301,14 +272,41 @@
     class ResultView extends Jinkela {
       get template() {
         return `
-          <div>
-            <jkl-response-view ref="responseView"></jkl-response-view>
-            <jkl-request-view ref="requestView"></jkl-request-view>
-          </div>
+          <dl>
+            <dt on-click="{click}">
+              <a href="JavaScript:" data-binding="ResponseView">Response</a>
+              <a href="JavaScript:" data-binding="RequestView">Request</a>
+            </dt>
+            <dd>
+              <meta ref="list" />
+            </dd>
+          </dl>
         `;
       }
+      click({ target }) {
+        if (this.activeTarget === target) return;
+        let binding = target.dataset.binding;
+        if (!binding) return;
+        if (this.activeTarget) this.activeTarget.classList.remove('active');
+        this.activeTarget = target;
+        target.classList.add('active');
+        this.list.forEach(item => {
+          item.element.style.display = item.constructor.name === binding ? 'block' : 'none';
+        });
+      }
+      get requestView() {
+        let value = new RequestView();
+        Object.defineProperty(this, 'requestView', { value, configurable: true });
+        return value;
+      }
+      get responseView() {
+        let value = new ResponseView();
+        Object.defineProperty(this, 'responseView', { value, configurable: true });
+        return value;
+      }
       init() {
-        this.element.dispatchEvent(new CustomEvent('sendrequest', { bubbles: true }));
+        this.list = [ this.requestView, this.responseView ];
+        this.element.querySelector('a').click();
       }
       update(request, $response) {
         this.requestView.update(request);
@@ -317,11 +315,33 @@
       get styleSheet() {
         return `
           :scope {
-            padding: 0 40px 40px;
-            background: #f0f1f4;
             height: 100%;
             box-sizing: border-box;
-            overflow: auto;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            > dt {
+              border-bottom: 1px solid #e4e4ec;
+              padding: 0 40px;
+              margin: 0;
+              > a {
+                text-decoration: none;
+                display: inline-block;
+                padding: .5em 1em;
+                font-size: 16px;
+                font-weight: 600;
+                color: #5d6576;
+                transition: background 200ms ease;
+                &.active { background: #f1f1f6; }
+                &:hover { background: #f8f8fc; }
+              }
+            }
+            > dd {
+              flex: 1;
+              overflow: auto;
+              padding: 0 40px;
+              margin: 0;
+            }
           }
         `;
       }
