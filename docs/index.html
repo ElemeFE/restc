@@ -5,13 +5,13 @@
   <meta http-equiv="X-UA-Compatible" content="chrome=1" />
   <meta name="renderer" content="webkit" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0" />
-  <script src="https://github.elemecdn.com/YanagiEiichi/reciper/0.1.6/index.js"></script>
+  <script src="https://github.elemecdn.com/YanagiEiichi/reciper/0.1.6/index.es5.js"></script>
   <script>
     if (!window.Promise) document.write('<script src="https://github.elemecdn.com/jakearchibald/es6-promise/v3.0.2/dist/es6-promise.min.js"><\/script>');
     if (!window.fetch) document.write('<script src="https://github.elemecdn.com/uglifyjs!github/fetch/v1.0.0/fetch.js"><\/script>');
   </script>
   <script>
-    let ROOT = location.pathname.match(/^\/restc|$/)[0];
+    var ROOT = location.pathname.match(/^\/restc|$/)[0];
     reciper({
       home: ROOT + '/',
       name: 'restc',
