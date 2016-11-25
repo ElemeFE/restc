@@ -788,16 +788,21 @@
       set headers(value) { this.headerCollection.collection = value; }
       get headers() { return this.headerCollection.value; }
       fromJSON(json) {
-        let { method, body, headers } = json;
+        let { method, queryParameters, body, headers } = json;
         if (method) this.method = method.toUpperCase();
-        this.syncQueryString();
+        if (queryParameters) {
+          this.queryParameters = queryParameters;
+        } else {
+          this.queryString =  location.search.slice(1);
+        }
         if (body) this.body = body;
         if (headers) this.headerCollection.fromJSON(headers);
       }
       toJSON() {
         let { method, body } = this;
+        let queryParameters = this.queryParameterCollection.toJSON();
         let headers = this.headerCollection.toJSON();
-        return { method, body, headers };
+        return { method, queryParameters, body, headers };
       }
       set isBodyVisible(value) {
         if (value) {
@@ -809,26 +814,20 @@
       }
       get isBodyVisible() { return this.bodyEditor.element.style.display !== 'none'; }
       init() {
-        let { method, body, headers = [] } = QueryString.parse(location.hash.replace(/^#!?/, ''));
+        let { method, queryParameters, body, headers = [] } = QueryString.parse(location.hash.replace(/^#!?/, ''));
         try { headers = JSON.parse(headers); } catch (error) { /* ignore */ }
-        this.queryString = location.search.slice(1);
-        this.fromJSON({ method, body, headers });
+        try { queryParameters = JSON.parse(queryParameters); } catch (error) { /* ignore */ }
+        this.fromJSON({ method, queryParameters, body, headers });
         this.methodChange();
       }
       submit(event) {
         event.preventDefault();
-        let { method, body, headers } = this.toJSON();
-        let args = this.queryParameterCollection.toJSON().filter(item => item.enabled);
-        let search = QueryString.stringify(args);
-        if (search) search = '?' + search;
+        let { method, queryParameters, body, headers } = this.toJSON();
+        if (queryParameters) queryParameters = JSON.stringify(queryParameters);
         if (headers) headers = JSON.stringify(headers);
-        let hash = QueryString.stringify({ method, body, headers });
+        let hash = QueryString.stringify({ method, queryParameters, body, headers });
         if (hash) hash = '#!' + hash;
-        if (location.search != search || location.hash != hash) {
-          location.href = search + hash;
-        } else {
-          dispatchEvent(new Event('hashchange'));
-        }
+        location.hash = hash;
       }
       methodChange() {
         this.isBodyVisible = isBodyEnable(this.method);
