@@ -226,7 +226,7 @@
         this.block = new HighlightBlock().to(this);
       }
       update($response) {
-        return loader(this.block, Promise.resolve($response).then(response => {
+        return Promise.resolve($response).then(response => {
           let status = [ 'HTTP/1.1', response.status, response.statusText ].join(' ');
           let headers = [ ...response.headers.entries() ].map(this.stringifyHeader).join('\n');
           let json = /json/.test(response.headers.get('Content-Type'));
@@ -237,7 +237,7 @@
             }
             this.block.update([ status, headers, '', body ].join('\n'));
           });
-        })).catch(({ message }) => {
+        }).catch(({ message }) => {
           this.block.update(message);
         });
       }
@@ -248,9 +248,8 @@
       get styleSheet() {
         return `
           :scope {
-            .loading {
+            &.loading {
               position: relative;
-              min-height: 64px;
               &:after {
                 position: absolute;
                 left: 3px;
@@ -258,7 +257,7 @@
                 top: 3px;
                 bottom: 3px;
                 content: '';
-                background: rgba(248, 248, 250, 0.8) url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHdpZHRoPScyNHB4JyBoZWlnaHQ9JzI0cHgnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSIjN2NjZmFmIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1kYXNob2Zmc2V0IiBkdXI9IjJzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgZnJvbT0iMCIgdG89IjUwMiI+PC9hbmltYXRlPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1kYXNoYXJyYXkiIGR1cj0iMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiB2YWx1ZXM9IjE1MC42IDEwMC40OzEgMjUwOzE1MC42IDEwMC40Ij48L2FuaW1hdGU+PC9jaXJjbGU+PC9zdmc+') 50% 50% no-repeat;
+                background: rgba(255, 255, 255, 0.8) url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHdpZHRoPScyNHB4JyBoZWlnaHQ9JzI0cHgnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSIjN2NjZmFmIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1kYXNob2Zmc2V0IiBkdXI9IjJzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgZnJvbT0iMCIgdG89IjUwMiI+PC9hbmltYXRlPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1kYXNoYXJyYXkiIGR1cj0iMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiB2YWx1ZXM9IjE1MC42IDEwMC40OzEgMjUwOzE1MC42IDEwMC40Ij48L2FuaW1hdGU+PC9jaXJjbGU+PC9zdmc+') 50% 50% no-repeat;
                 backdrop-filter: blur(3px);
                 -webkit-backdrop-filter: blur(3px);
                 cursor: progress;
@@ -308,13 +307,23 @@
         this.list = [ this.requestView, this.responseView ];
         this.element.querySelector('a').click();
       }
+      set waiting(value) {
+        if (value) {
+          this.element.classList.add('waiting');
+        } else {
+          this.element.classList.remove('waiting');
+        }
+      }
+      get waiting() { return this.element.classList.has('waiting'); }
       update(request, $response) {
+        this.waiting = false;
         this.requestView.update(request);
-        this.responseView.update($response);
+        return loader(this, this.responseView.update($response));
       }
       get styleSheet() {
         return `
           :scope {
+            position: relative;
             height: 100%;
             box-sizing: border-box;
             margin: 0;
@@ -356,6 +365,32 @@
               overflow: auto;
               padding: 0 40px;
               margin: 0;
+            }
+            &.loading:after {
+              position: absolute;
+              left: 0;
+              right: 0;
+              top: 0;
+              bottom: 0;
+              content: '';
+              background: rgba(248, 248, 250, 0.8) url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHdpZHRoPScyNHB4JyBoZWlnaHQ9JzI0cHgnIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDEwMCAxMDAiIHByZXNlcnZlQXNwZWN0UmF0aW89InhNaWRZTWlkIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0MCIgc3Ryb2tlPSIjN2NjZmFmIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1kYXNob2Zmc2V0IiBkdXI9IjJzIiByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgZnJvbT0iMCIgdG89IjUwMiI+PC9hbmltYXRlPjxhbmltYXRlIGF0dHJpYnV0ZU5hbWU9InN0cm9rZS1kYXNoYXJyYXkiIGR1cj0iMnMiIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiB2YWx1ZXM9IjE1MC42IDEwMC40OzEgMjUwOzE1MC42IDEwMC40Ij48L2FuaW1hdGU+PC9jaXJjbGU+PC9zdmc+') 50% 50% no-repeat;
+              cursor: progress;
+              z-index: 1000;
+            }
+            &.waiting:after {
+              position: absolute;
+              left: 0;
+              top: 0;
+              right: 0;
+              bottom: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              content: 'Click “Send” to send the request';
+              font-weight: 500;
+              font-size: 1.2em;
+              background: rgba(248, 248, 250, 0.8);
+              z-index: 1000;
             }
           }
         `;
@@ -827,7 +862,11 @@
         if (headers) headers = JSON.stringify(headers);
         let hash = QueryString.stringify({ method, queryParameters, body, headers });
         if (hash) hash = '#!' + hash;
-        location.hash = hash;
+        if (location.hash !== hash) {
+          location.hash = hash;
+        } else {
+          dispatchEvent(new Event('hashchange'));
+        }
       }
       methodChange() {
         this.isBodyVisible = isBodyEnable(this.method);
@@ -880,7 +919,11 @@
         `;
       }
       init() {
-        this.sendRequest();
+        if (this.sideBar.method === 'GET' || this.sendByUser) {
+          this.sendRequest();
+        } else {
+          this.resultView.waiting = true;
+        }
         Configuration.watch('settings.sidebar.collapse', value => {
           if (value) {
             this.element.classList.add('sidebar-collapse');
@@ -942,13 +985,10 @@
     }
 
     class Frame extends Jinkela {
-      get template() {
-        return `
-          <div>
-            <jkl-header></jkl-header>
-            <jkl-main></jkl-main>
-          </div>
-        `;
+      init() {
+        let { sendByUser } = this;
+        new Header().to(this);
+        new Main({ sendByUser }).to(this);
       }
       get styleSheet() {
         return `
@@ -982,7 +1022,7 @@
     }
 
     let frame = new Frame();
-    addEventListener('hashchange', () => frame = new Frame().renderWith(frame));
+    addEventListener('hashchange', () => frame = new Frame({ sendByUser: true }).renderWith(frame));
     addEventListener('DOMContentLoaded', () => frame.to(document.body));
   </script>
 </head>
