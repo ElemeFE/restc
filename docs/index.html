@@ -12,19 +12,21 @@
   </script>
   <script>
     var ROOT = location.pathname.match(/^\/restc|$/)[0];
-    reciper({
-      home: ROOT + '/',
-      name: 'restc',
-      description: 'RESTful 接口调试分享利器',
-      logoUrl: ROOT + '/images/logo.svg',
-      logoHref: ROOT + '/intro/',
-      languages: [ 'javascript', 'nginx' ],
-      items: [
-        { text: '简介', href: ROOT + '/intro/' },
-        { text: '指南', href: ROOT + '/guide/' },
-        { text: 'GitHub', href: 'https://github.com/ElemeFE/restc' }
-      ],
-      "primaryColor": "#4c5264"
+    addEventListener('DOMContentLoaded', function () {
+      reciper({
+        home: ROOT + '/',
+        name: 'restc',
+        description: 'RESTful 接口调试分享利器',
+        logoUrl: ROOT + '/images/logo.svg',
+        logoHref: ROOT + '/intro/',
+        languages: [ 'javascript', 'nginx' ],
+        items: [
+          { text: '简介', href: ROOT + '/intro/' },
+          { text: '指南', href: ROOT + '/guide/' },
+          { text: 'GitHub', href: 'https://github.com/ElemeFE/restc' }
+        ],
+        "primaryColor": "#4c5264"
+      });
     });
   </script>
   <style>
