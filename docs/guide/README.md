@@ -88,7 +88,7 @@ location / {
 
 建议配置 Nginx 缓存，加快访问速度。具体请看 [NGINX Content Caching][nginx-content-caching]。
 
-[import-with-nginx]: #%E5%9C%A8%20Nginx%20%E4%B8%AD%E5%BC%95%E5%85%A5
+[import-with-nginx]: #2.%20%E5%9C%A8%20Nginx%20%E4%B8%AD%E5%BC%95%E5%85%A5
 [restc-example-express]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-express
 [restc-example-koa]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-koa
 [restc-example-koa2]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-koa2
