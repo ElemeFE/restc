@@ -73,7 +73,7 @@
       }
     }
 
-    const isBodyEnable = method => ![ 'HEAD', 'GET' ].includes(method);
+    const isBodyEnabled = method => ![ 'HEAD', 'GET' ].includes(method);
 
     const loader = ({ element }, $promise) => {
       element.classList.add('loading');
@@ -214,7 +214,7 @@
           [ method, uri, 'HTTP/1.1' ].join(' '),
           ...headers.map(({ key, value }) => [ key, value ].join(': '))
         ].join('\n');
-        if (isBodyEnable(method) && body) request = [ request, body ].join('\n\n');
+        if (isBodyEnabled(method) && body) request = [ request, body ].join('\n\n');
         this.block.update(request);
       }
     }
@@ -870,7 +870,7 @@
         }
       }
       methodChange() {
-        this.isBodyVisible = isBodyEnable(this.method);
+        this.isBodyVisible = isBodyEnabled(this.method);
       }
       syncQueryParameters() {
         let { queryString } = this;
