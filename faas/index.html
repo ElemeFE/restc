@@ -183,13 +183,13 @@
       get styleSheet() {
         return `
           :scope {
-            margin: 0 -40px;
             font-size: 12px;
             line-height: 1.5;
             & > code {
               margin: 0 8px;
               padding: 20px 32px;
               background: transparent;
+              overflow: visible;
             }
           }
         `;
@@ -249,6 +249,8 @@
       get styleSheet() {
         return `
           :scope {
+            height: 100%;
+            overflow: auto;
             &.loading {
               position: relative;
               &:after {
@@ -364,7 +366,6 @@
             > dd {
               flex: 1;
               overflow: auto;
-              padding: 0 40px;
               margin: 0;
             }
             &.loading:after {
