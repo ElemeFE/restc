@@ -13,7 +13,7 @@ It can be easily integrated with popular HTTP frameworks. You will see:
 
 You can even share a request by sharing its URL directly to others and everything will be automatically filled in the panel.
 
-## Get Started
+## Getting Started
 
     npm install --save restc
 
