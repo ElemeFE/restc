@@ -1,6 +1,6 @@
 {
   "name": "restc",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A server-side middleware to visualize REST requests.",
   "main": "index.js",
   "repository": "https://github.com/ElemeFE/restc.git",
