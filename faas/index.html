@@ -235,7 +235,7 @@
             let body = result;
             if (json) {
               let protectedNumber = [];
-              body = body.replace(/\d+/g, $0 => protectedNumber.push($0) - 1);
+              body = body.replace(/\\.\d*|\d+/g, $0 => protectedNumber.push($0) - 1);
               try {
                 body = JSON.stringify(JSON.parse(body), null, 2);
                 body = body.replace(/\d+/g, index => protectedNumber[index]);
