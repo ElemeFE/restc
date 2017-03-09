@@ -234,7 +234,12 @@
           return response.text().then(result => {
             let body = result;
             if (json) {
-              try { body = JSON.stringify(JSON.parse(body), null, 2); } catch (e) { /* ignore */ }
+              let protectedNumber = [];
+              body = body.replace(/\d+/g, $0 => protectedNumber.push($0) - 1);
+              try {
+                body = JSON.stringify(JSON.parse(body), null, 2);
+                body = body.replace(/\d+/g, index => protectedNumber[index]);
+              } catch (e) { /* ignore */ }
             }
             this.block.update([ status, headers, '', body ].join('\n'));
           });
