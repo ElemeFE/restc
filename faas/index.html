@@ -14,6 +14,7 @@
   <script src="https://github.elemecdn.com/uglifyjs!codemirror/CodeMirror/5.19.0/lib/codemirror.js"></script>
   <script src="https://github.elemecdn.com/uglifyjs!codemirror/CodeMirror/5.19.0/mode/javascript/javascript.js"></script>
   <script src="https://github.elemecdn.com/uglifyjs!codemirror/CodeMirror/5.19.0/addon/display/autorefresh.js"></script>
+  <script src="https://npm.elemecdn.com/json-format-safely@1.0.0/index.js"></script>
   <script extract>
     class Configuration {
       static get watchList() {
@@ -234,11 +235,8 @@
           return response.text().then(result => {
             let body = result;
             if (json) {
-              let protectedNumber = [];
-              body = body.replace(/\\.\d*|\d+/g, $0 => protectedNumber.push($0) - 1);
               try {
-                body = JSON.stringify(JSON.parse(body), null, 2);
-                body = body.replace(/\d+/g, index => protectedNumber[index]);
+                body = jsonFormatSafely(body);
               } catch (e) { /* ignore */ }
             }
             this.block.update([ status, headers, '', body ].join('\n'));
