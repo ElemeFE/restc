@@ -5,6 +5,7 @@
   "main": "index.js",
   "repository": "https://github.com/ElemeFE/restc.git",
   "license": "MIT",
+  "typings": "index.d.ts",
   "faas": {
     "domain": "restc",
     "public": "faas",
