@@ -1,17 +1,17 @@
-const express = require('express');
-const app = express();
-const restc = require('../..');
+const express = require('express')
+const app = express()
+const restc = require('../..')
 
-app.use(restc.express());
+app.use(restc.express())
 
 app.get('/', (req, res) => {
-  res.send({ message: 'Hello world!' });
-});
+  res.send({ message: 'Hello world!' })
+})
 
 app.get('/binary', (req, res) => {
-  res.set('Content-Type', 'application/octet-stream');
-  res.set('Content-Disposition', 'attachment; filename="hello.txt"');
-  res.send('Hello world!');
-});
+  res.set('Content-Type', 'application/octet-stream')
+  res.set('Content-Disposition', 'attachment; filename="hello.txt"')
+  res.send('Hello world!')
+})
 
-app.listen(3000);
+app.listen(3000)
