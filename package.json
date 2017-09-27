@@ -13,7 +13,8 @@
     "index.d.ts"
   ],
   "scripts": {
-    "lint": "eslint --fix ."
+    "lint": "eslint --fix .",
+    "test": "ava"
   },
   "faas": {
     "domain": "restc",
@@ -26,6 +27,7 @@
     ]
   },
   "devDependencies": {
+    "ava": "^0.22.0",
     "eslint": "^4.2.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.7.0",
