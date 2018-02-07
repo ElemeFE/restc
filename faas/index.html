@@ -15,6 +15,7 @@
   <script src="https://shadow.elemecdn.com/gh/codemirror/CodeMirror@5.19.0/mode/javascript/javascript.min.js"></script>
   <script src="https://shadow.elemecdn.com/gh/codemirror/CodeMirror@5.19.0/addon/display/autorefresh.min.js"></script>
   <script src="https://shadow.elemecdn.com/npm/json-format-safely@1.2.2/index.js"></script>
+  <script src="https://shadow.elemecdn.com/npm/content-disposition-attachment@0.1.1/build@module=ContentDispositionAttachment&amp;format=umd!toes5!uglifyjs!index.js"></script>
   <script extract>
     class Configuration {
       static get watchList() {
@@ -285,9 +286,12 @@
           let javascript = /javascript/.test(contentType);
           let binary = !(/text/.test(contentType) || json || javascript);
           let contentDisposition = response.headers.get('Content-Disposition') || '';
-          let attachment = /attachment/.test(contentDisposition);
-          let filename = /filename="([^"]+)/.exec(contentDisposition);
-          if (filename) filename = filename[1];
+          try {
+            contentDisposition = ContentDispositionAttachment.parse(contentDisposition);
+          } catch (error) {
+            contentDisposition = { attachment: false };
+          }
+          let { attachment, filename } = contentDisposition;
           let $body;
           if (binary || attachment) {
             $body = response.blob().then(URL.createObjectURL).then(url => {
