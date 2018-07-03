@@ -1015,7 +1015,7 @@
           'Content-Type': 'application/json'
         };
         headers = Object.assign({}, defaultHeaders, headers);
-        let uri = path;
+        let uri = `//${location.host}${path}`;
         if (queryString) uri += '?' + queryString;
         let options = { method, headers, credentials: 'include' };
         if (this.sideBar.isBodyVisible) options.body = body;
