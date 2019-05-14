@@ -1,0 +1,11 @@
+{
+  "name": "restc-example-hapi",
+  "version": "1.0.0",
+  "description": "An example to demostrate how to use restc in hapi",
+  "main": "index.js",
+  "author": "mayxiaoyu1223@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "hapi": "^18.1.0"
+  }
+}

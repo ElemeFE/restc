@@ -27,4 +27,10 @@ app.use(restc.express());
 app.use(restc.koa());
 // ...and koa2
 app.use(restc.koa2());
+// for hapi
+server.register(restc.hapi)
+// for hapi of old version
+server.register([{
+                  register: restc.hapiOld
+                }], (err) => {})
 ```
