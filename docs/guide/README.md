@@ -126,4 +126,4 @@ location / {
 [restc-example-koa2]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-koa2
 [nginx-content-caching]: https://www.nginx.com/resources/admin-guide/content-caching/
 [restc-example-hapi]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-hapi/latest
-[restc-example-hapi-old]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-hapi/legacy
+[restc-example-hapi-legacy]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-hapi/legacy
