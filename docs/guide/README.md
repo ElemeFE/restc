@@ -51,6 +51,38 @@ app.use(restc.koa2());
 
 也可以参考我们提供的例子 [restc-example-koa2][restc-example-koa2]。
 
+### 1.4. Hapi 8.x 和 7.x
+
+使用 `restc.hapi` 中间件。
+
+```javascript
+// import restc
+const restc = require('restc');
+// use restc middleware
+server.register(restc.hapi);
+```
+
+也可以参考我们提供的例子 [restc-example-hapi][restc-example-hapi]。
+
+### 1.5. Hapi 6.x
+
+使用 `restc.hapiLegacy` 中间件。
+
+```javascript
+// import restc
+const restc = require('restc');
+// use restc middleware
+server.register([{
+  register: restc.hapiLegacy
+}], (err) => {
+  if (err) {
+    throw err
+  }
+})
+```
+
+也可以参考我们提供的例子 [restc-example-hapi-legacy][restc-example-hapi-legacy]。
+
 ## 2. 在 Nginx 中引入
 
 增加对 `$http_accept` 的判断逻辑，当客户端接受 HTML 时，重写并反向代理至 restc 页面。
@@ -93,3 +125,5 @@ location / {
 [restc-example-koa]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-koa
 [restc-example-koa2]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-koa2
 [nginx-content-caching]: https://www.nginx.com/resources/admin-guide/content-caching/
+[restc-example-hapi]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-hapi/latest
+[restc-example-hapi-legacy]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-hapi/legacy
