@@ -51,7 +51,7 @@ app.use(restc.koa2());
 
 也可以参考我们提供的例子 [restc-example-koa2][restc-example-koa2]。
 
-### 1.4. Hapi 8.x 和 7.x
+### 1.4. Hapi 18.x 和 17.x
 
 使用 `restc.hapi` 中间件。
 
@@ -64,7 +64,7 @@ server.register(restc.hapi);
 
 也可以参考我们提供的例子 [restc-example-hapi][restc-example-hapi]。
 
-### 1.5. Hapi 6.x
+### 1.5. Hapi 16.x
 
 使用 `restc.hapiLegacy` 中间件。
 
