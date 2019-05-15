@@ -81,7 +81,7 @@ server.register([{
 })
 ```
 
-也可以参考我们提供的例子 [restc-example-hapi-old][restc-example-hapi-old]。
+也可以参考我们提供的例子 [restc-example-hapi-legacy][restc-example-hapi-legacy]。
 
 ## 2. 在 Nginx 中引入
 
