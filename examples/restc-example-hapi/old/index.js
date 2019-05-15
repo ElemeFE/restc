@@ -11,12 +11,12 @@ server.register(registerConfig, (err) => {
   if (err) {
     throw err // something bad happened loading the plugin
   }
-  // 添加路由
+  // add route
   server.route({
     method: 'GET',
     path: '/',
     handler: (request, reply) => {
-      reply('Hello Word!')
+      reply('Hello world!')
     }
   })
   server.route({
@@ -24,7 +24,7 @@ server.register(registerConfig, (err) => {
     path: '/json',
     handler: (request, reply) => {
       reply({
-        message: 'Hello Word'
+        message: 'Hello world'
       })
     }
   })
