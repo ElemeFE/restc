@@ -66,15 +66,19 @@ server.register(restc.hapi);
 
 ### 1.5. Hapi 6.x
 
-使用 `restc.hapiOld` 中间件。
+使用 `restc.hapiLegacy` 中间件。
 
 ```javascript
 // import restc
 const restc = require('restc');
 // use restc middleware
 server.register([{
-                  register: restc.hapiOld
-                }], (err) => {})
+  register: restc.hapiLegacy
+}], (err) => {
+  if (err) {
+    throw err
+  }
+})
 ```
 
 也可以参考我们提供的例子 [restc-example-hapi-old][restc-example-hapi-old]。
@@ -122,4 +126,4 @@ location / {
 [restc-example-koa2]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-koa2
 [nginx-content-caching]: https://www.nginx.com/resources/admin-guide/content-caching/
 [restc-example-hapi]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-hapi/latest
-[restc-example-hapi-old]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-hapi/old
+[restc-example-hapi-old]: https://github.com/ElemeFE/restc/tree/master/examples/restc-example-hapi/legacy

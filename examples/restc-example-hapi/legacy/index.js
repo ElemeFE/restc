@@ -5,7 +5,7 @@ server.connection({
   port: 3333
 })
 let registerConfig = [{
-  register: restc.hapiOld
+  register: restc.hapiLegacy
 }]
 server.register(registerConfig, (err) => {
   if (err) {
