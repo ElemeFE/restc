@@ -1,6 +1,14 @@
-# restc
+<p align="center">
+  <img src="/docs/images/logo.svg" alt="restc" width="150" height="150">
+</p>
 
-[中文文档](https://elemefe.github.io/restc/intro/)
+<p align="center">
+  <img src="https://img.shields.io/circleci/project/github/ElemeFE/restc.svg" alt="CircleCI (all branches)">
+</p>
+
+<p align="center">
+  <a href="https://elemefe.github.io/restc/intro/">中文文档</a>
+</p>
 
 ## Introduction
 

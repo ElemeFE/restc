@@ -13,7 +13,8 @@
     "index.d.ts"
   ],
   "scripts": {
-    "lint": "eslint --fix .",
+    "lint": "eslint .",
+    "lint-fix": "eslint --fix .",
     "test": "ava"
   },
   "faas": {
