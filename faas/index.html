@@ -224,6 +224,28 @@
       }
     }
 
+    class ResponseViewImage extends Jinkela {
+      beforeParse(params) {
+        if (!params.filename) {
+          params.filename = '';
+        }
+      }
+      get template() {
+        return `
+          <a download="{filename}" href="{url}">
+            <img src="{url}"/>
+          </a>
+        `;
+      }
+      get styleSheet() {
+        return `
+          :scope {
+            text-decoration: none;
+          }
+        `;
+      }
+    }
+
     class ResponseViewDownloadLink extends Jinkela {
       beforeParse(params) {
         if (!params.filename) {
@@ -285,6 +307,7 @@
           let json = /json/.test(contentType);
           let javascript = /javascript/.test(contentType);
           let binary = !(/text/.test(contentType) || json || javascript);
+          let image = /image/.test(contentType);
           let contentDisposition = response.headers.get('Content-Disposition') || '';
           try {
             contentDisposition = ContentDispositionAttachment.parse(contentDisposition);
@@ -293,7 +316,11 @@
           }
           let { attachment, filename } = contentDisposition;
           let $body;
-          if (binary || attachment) {
+          if (image) {
+            $body = response.blob().then(URL.createObjectURL).then(url => {
+              return { elements: [ new ResponseViewImage({ url, filename }) ] };
+            });
+          } else if (binary || attachment) {
             $body = response.blob().then(URL.createObjectURL).then(url => {
               return { elements: [ new ResponseViewDownloadLink({ url, filename }) ] };
             });
