@@ -1,6 +1,6 @@
 {
   "name": "restc",
-  "version": "0.4.0",
+  "version": "0.4.2",
   "description": "A server-side middleware to visualize REST requests.",
   "main": "index.js",
   "repository": "https://github.com/ElemeFE/restc.git",
@@ -28,7 +28,7 @@
     ]
   },
   "devDependencies": {
-    "ava": "^0.22.0",
+    "ava": "^2.4.0",
     "eslint": "^4.2.0",
     "eslint-config-standard": "^10.2.1",
     "eslint-plugin-import": "^2.7.0",
