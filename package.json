@@ -8,24 +8,16 @@
   "typings": "index.d.ts",
   "files": [
     "lib",
-    "faas",
+    "dist",
     "index.js",
     "index.d.ts"
   ],
   "scripts": {
+    "build": "mkdir -p dist && cp src/index.html dist/ && ./scripts/inline.php",
     "lint": "eslint .",
     "lint-fix": "eslint --fix .",
-    "test": "ava"
-  },
-  "faas": {
-    "domain": "restc",
-    "public": "faas",
-    "description": "A server-side middleware to visualize REST requests.",
-    "author_name": "lujjjh",
-    "author_email": "jiahao.lu02@ele.me",
-    "notice": [
-      "jiahao.lu02@ele.me"
-    ]
+    "test": "ava",
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "ava": "^3.13.0",
